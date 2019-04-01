@@ -12,7 +12,7 @@ if($_POST){
     $pdo = Database::connect();
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     
-    $sql = "SELECT * FROM customers WHERE email = '$username' AND password_hash = '$password'";
+    $sql = "SELECT * FROM customers4 WHERE email = '$username' AND password_hash = '$password'";
     $q = $pdo->prepare($sql);
     $q->execute(array());
     $data = $q->fetch(PDO::FETCH_ASSOC);

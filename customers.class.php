@@ -95,9 +95,9 @@ class Customer {
                 <h3>Choose Upload Type </h3>
                 <div class='container'>
                     <p class='row'>
-                        <a href='$this->tableName.php?fun=$funNext1' class='btn btn-success'>Upload 1</a>
-                        <a href='$this->tableName.php?fun=$funNext2' class='btn btn-danger'>Upload 2</a>
-                        <a href='$this->tableName.php?fun=$funNext3' class='btn btn-warning'>Upload 3</a>
+                        <a href='$this->tableName.php?fun=$funNext1' class='btn btn-success'>Upload File</a>
+                        <a href='$this->tableName.php?fun=$funNext3' class='btn btn-warning'>Upload Personal Image</a>
+                        <a href='$this->tableName.php?fun=$funNext2' class='btn btn-danger'>View All Uploads</a>
                         <a class='btn btn-secondary' href='$this->tableName.php'>Back</a>
                     </p>";
           
@@ -105,10 +105,11 @@ class Customer {
     
     function display_upload1($id) {
         $funNext1 = "upload1&id=" . $id;
+        $funNext4 = "display_upload_form&id=" . $id;
         echo "<html>
     
     <head>
-        <title>Upload01</title>" ;
+        <title>Upload Files</title>" ;
         echo "
         <meta charset='UTF-8'>
         <meta name='viewport' 
@@ -131,7 +132,7 @@ class Customer {
             <br/>
             <input TYPE='submit' name='upload' value='Submit'/>
         </form>
-        <a class='btn btn-secondary' href='$this->tableName.php'>Back</a>
+        <a class='btn btn-secondary' href='$this->tableName.php?fun=$funNext4'>Back</a>
         
     </body>
     
@@ -185,147 +186,35 @@ class Customer {
             }
     
     function display_upload2($id){
-       $funNext2 = "upload2&id=" . $id;
-        echo "<!DOCTYPE html>
-<!--            ****************************************
-File:           upload02.html
-Description:    Uploads file to directory, upload02, and 
-                stores filename in MySQL table. 
-                See also: upload02.php.
-SQL table name: upload02: 
-                id (int), filename (varchar), filetype (varchar), 
-                filesize (int), description (varchar)
-Source:         Code modified from: 
-                http://www.lionblogger.com/how-to-upload-file-to-server-using-php-save-the-path-in-mysql/
-                **************************************** -->
-<html>
-    
-    <head>
-        <title>Upload02</title>
-        <meta charset='UTF-8'>
-        <meta name='viewport' 
-              content='width=device-width, initial-scale=1.0'>
-    </head>
-    
-    <body>
-        
-        <h1>(2) Upload a file, and store filepath in MySQL</h1>
-        <p>This form will upload any file, 
-            as long as the file is smaller than 2MB. 
-            Filename and other file information
-            will be stored in the MySQL table, upload02.
-        </p>
-        <form method='post' action='$this->tableName.php?fun=$funNext2'
-              enctype='multipart/form-data'>
-            <p>File</p>
-            <input type='file' 
-                name='Filename'> 
-            <p>Description</p>
-            <textarea rows='10' cols='35' 
-                name='Description'></textarea>
-            <br/>
-            <input TYPE='submit' name='upload' value='Submit'/>
-        </form>
-        <a class='btn btn-secondary' href='$this->tableName.php'>Back</a>
-        
-    </body>
-    
-</html>
-";
-    }
-            
-    function upload2($id){
-
-        // set PHP variables from data in HTML form
-        $this->id = $id ;
-        $this->fileName       = $_FILES['Filename']['name'];
-        $this->tempFileName   = $_FILES['Filename']['tmp_name'];
-        $this->fileSize       = $_FILES['Filename']['size'];
-        $this->fileType       = $_FILES['Filename']['type'];
-        $this->fileDescription = $_POST['Description']; 
-
-        // set server location (subdirectory) to store uploaded files
-        $fileLocation = "uploads/";
-        $this->fileFullPath = $fileLocation . $this->fileName; 
-        if (!file_exists($fileLocation))
-            mkdir ($fileLocation); // create subdirectory, if necessary
-
-        // execute debugging code...
-        // echo phpinfo(); exit(); // to see location of php.ini
-        // note: can't set php.ini:file_uploads on the fly
-        // echo ini_set('file_uploads', '1'); // "set" does not work
-        // echo ini_get('file_uploads'); // "get" does work
-        // echo "<pre>"; print_r(ini_get_all()); echo "</pre>"; exit();
-        // echo "<pre>"; print_r($_FILES); echo "</pre>"; exit(); 
-
-        // connect to database
+        $funNext4 = "display_upload_form&id=" . $id;
         $pdo = Database::connect();
 
-        // exit, if requested file already exists -- in the database table 
-        $fileExists = false;
-        $sql = "SELECT filename FROM customers4 WHERE filename='$this->fileName'";
-        foreach ($pdo->query($sql) as $row) {
-            if ($row['filename'] == $this->fileName) {
-                $fileExists = true;
-            }
-        }
-        if ($fileExists) {
-            echo "File <html><b><i>" . $this->fileName 
-                . "</i></b></html> already exists in DB. Please rename file.";
-            exit(); 
-        }
-
-        // exit, if requested file already exists -- in the subdirectory 
-        if(file_exists($this->fileFullPath)) {
-            echo "File <html><b><i>" . $this->fileName 
-                . "</i></b></html> already exists in file system, "
-                . "but not in database table. Cannot upload.";
-            exit(); 
-        }
-
-        // if all of above is okay, then upload the file
-        $result = move_uploaded_file($this->tempFileName, $this->fileFullPath);
-        
-        // if upload was successful, then add a record to the SQL database
-        if ($result) {
-            echo "Your file <html><b><i>" . $this->fileName 
-                . "</i></b></html> has been successfully uploaded";
-            $sql = "UPDATE $this->tableName  set filename = ?, filesize = ?,filetype = ?, description = ? WHERE id = ?";
-            $q = $pdo->prepare($sql);
-            $q->execute(array($this->fileName,$this->fileSize,$this->fileType,$this->fileDescription,$this->id));
-
-
-        // otherwise, report error
-        } else {
-            echo "Upload denied for this file. Verify file size < 2MB. ";
-        }
-
-        // list all files in database 
-        // ORDER BY BINARY filename ASC (sorts case-sensitive, like Linux)
+        echo "<br>To see all uploaded files, visit: " 
+            . "<a href='http://localhost/Prog04/uploads/'>Uploads</a>";
         echo '<br><br>All files in database...<br><br>';
-        $sql = 'SELECT * FROM customers4 ' 
-            . 'ORDER BY BINARY filename ASC;';
-        $i = 0; 
-        foreach ($pdo->query($sql) as $row) {
-            echo ' ... [' . $i++ . '] --- ' . $row['filename'] . '<br>';
-        }
-        echo '<br><br>';
+                $sql = 'SELECT * FROM customers4 ' 
+                    . 'ORDER BY BINARY filename ASC;';
 
-        // list all files in subdirectory
-        echo 'All files in subdirectory...<br>';
-        echo '<pre>';
-        $arr = array_slice(scandir("$fileLocation"), 2);
-        asort($arr);
-        print_r($arr);
-        echo '<pre>';
+        foreach ($pdo->query($sql) as $row) {
+            $id = $row['id'];
+            $sql = "SELECT * FROM customers4 where id=$id"; 
+            echo $row['id'] . ' - ' . $row['filename'] 
+                    . ' ' . $row['description'] . '<br>'
+                . '<img width=100 src="data:image/jpeg;base64,'
+                . base64_encode( $row['content'] ).'"/>'
+                . '<br><br>';
+        }
         echo '<br><br>';
 
         // disconnect
         Database::disconnect(); 
-        echo "<br><a class='btn btn-secondary' href='$this->tableName.php'>Back</a>";
+        echo "<br><a class='btn btn-secondary' href='$this->tableName.php?fun=$funNext4'>Back</a>";
     }
     
+            
+    
     function display_upload3($id){
+        $funNext4 = "display_upload_form&id=" . $id;
         $funNext3 = "upload3&id=" . $id;
         echo "<!DOCTYPE html>
 <!--            ****************************************
@@ -341,7 +230,7 @@ Source:         Code modified from:
 <html>
     
     <head>
-        <title>Upload03</title>
+        <title>Upload Personal Image</title>
         <meta charset='UTF-8'>
         <meta name='viewport' 
               content='width=device-width, initial-scale=1.0'>
@@ -349,12 +238,13 @@ Source:         Code modified from:
     
     <body>
         
-        <h1>(3) Upload an image file, and store as BLOB</h1>
+        <h1>(2 & 3) Upload an image file, and store as a personal image</h1>
         <p>This form will insert an image file (png/jpg/gif) 
             as a binary large object (BLOB), 
             as long as the file is smaller than 2MB. 
             Filename, file contents, and other file information
-            will be stored in the MySQL table, upload03.
+            will be stored in the MySQL table
+            <br>As well the file will be added to a subdirectory
         </p>
         <form method='post' action='$this->tableName.php?fun=$funNext3' 
               onsubmit='return Validate(this);'
@@ -368,7 +258,7 @@ Source:         Code modified from:
             <br/>
             <input TYPE='submit' name='upload' value='Submit'/>
         </form>
-        <a class='btn btn-secondary' href='$this->tableName.php'>Back</a>
+        <a class='btn btn-success' href='$this->tableName.php?fun=$funNext4'>Back</a>
         
         <script>
             var _validFileExtensions = ['.jpg', '.jpeg', '.gif', '.png'];    
@@ -417,7 +307,8 @@ Source:         Code modified from:
         $this->fileType       = $_FILES['Filename']['type'];
 
         // abort if no filename
-        if (!$this->fileName) {
+        
+         if (!$this->fileName) {
             die("No filename.");
         }
 
@@ -436,12 +327,16 @@ Source:         Code modified from:
         }
 
         // abort if file is too big
-        if($this->fileSize > 2000000) { echo "Error: file exceeds 2MB."; exit(); }
-
+        if($this->fileSize > 200000) { echo "Error: file exceeds 2MB."; exit(); }
+       
+        $link = mysqli_connect("localhost", "root", "", "projects");
+        
         // fix slashes in $fileType variable, if necessary
-       //$fileType=(get_magic_quotes_gpc()==0 ? mysql_real_escape_string(
-       //$_FILES['Filename']['type']) : mysql_real_escape_string(
-       //stripslashes ($_FILES['Filename'])));
+       $this->fileType=(get_magic_quotes_gpc()==0 ? mysqli_real_escape_string($link,
+       $_FILES['Filename']['type']) : mysqli_real_escape_string($link,
+       stripslashes ($_FILES['Filename'])));
+       
+       mysqli_close($link);
 
         // put the content of the file into a variable, $content
         $fp      = fopen($this->tempFileName, 'r');
@@ -449,18 +344,64 @@ Source:         Code modified from:
         $this->content = addslashes($content);
         fclose($fp);
 
-        // no longer needed - feature removed from php
-        // http://php.net/manual/en/function.get-magic-quotes-gpc.php
-        // restore slashes in $fileType variable, if necessary
         if(!get_magic_quotes_gpc()) { $this->fileName = addslashes($this->fileName); }
+
+        
+        $fileLocation = "uploads/";
+        $this->fileFullPath = $fileLocation . $this->fileName; 
+        if (!file_exists($fileLocation))
+            mkdir ($fileLocation); // create subdirectory, if necessary
 
         // connect to database
         $pdo = Database::connect();
 
-        // insert file info and content into table
-        $sql = "UPDATE $this->tableName  set filename = ?, filesize = ?,filetype = ?, description = ?, content = ? WHERE id = ?";
+        // exit, if requested file already exists -- in the database table 
+        $fileExists = false;
+        $sql = "SELECT filename FROM customers4 WHERE filename='$this->fileName'";
+        foreach ($pdo->query($sql) as $row) {
+            if ($row['filename'] == $this->fileName) {
+                $fileExists = true;
+            }
+        }
+        if ($fileExists) {
+            echo "File <html><b><i>" . $this->fileName 
+                . "</i></b></html> already exists in DB. Please rename file.";
+            exit(); 
+        }
+
+        // exit, if requested file already exists -- in the subdirectory 
+        if(file_exists($this->fileFullPath)) {
+            echo "File <html><b><i>" . $this->fileName 
+                . "</i></b></html> already exists in file system, "
+                . "but not in database table. Cannot upload.";
+            exit(); 
+        }
+
+        // if all of above is okay, then upload the file
+        $result = move_uploaded_file($this->tempFileName, $this->fileFullPath);
+        
+        // if upload was successful, then add a record to the SQL database
+
+        
+       
+        
+        $pdo = Database::connect();
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        
+        if ($result) {
+            echo "Your file <html><b><i>" . $this->fileName 
+                . "</i></b></html> has been successfully uploaded";
+
+            $sql = "UPDATE $this->tableName  set filename = ?, filesize = ?,filetype = ?, description = ?, content = ? WHERE id = ?";
             $q = $pdo->prepare($sql);
             $q->execute(array($this->fileName,$this->fileSize,$this->fileType,$this->fileDescription,$content,$this->id));
+
+
+        // otherwise, report error
+        } else {
+            echo "Upload denied for this file. Verify file size < 2MB. ";
+        }
+
 
         // list all uploads in database 
         // ORDER BY BINARY filename ASC (sorts case-sensitive, like Linux)
@@ -758,6 +699,7 @@ Source:         Code modified from:
                         <table class='table table-striped table-bordered'>
                             <thead>
                                 <tr>
+                                    <th>Image</th>
                                     <th>Name</th>
                                     <th>Email</th>
                                     <th>Password</th>
@@ -771,6 +713,8 @@ Source:         Code modified from:
         $sql = "SELECT * FROM $this->tableName ORDER BY id DESC";
         foreach($pdo->query($sql) as $row) {
             echo "<tr>";
+            echo "<td>". '<img width=150 height=150 src="data:image/jpeg;base64,'
+                . base64_encode( $row['content'] ).'"/>' . "</td>";
             echo "<td>". $row["name"] . "</td>";
             echo "<td>". $row["email"] . "</td>";
             echo "<td>". $row["password_hash"] . "</td>";

@@ -48,8 +48,6 @@ switch ($fun) {
         break;
     case "upload1":            $cust->upload1($id);
         break;
-    case "upload2":            $cust->upload2($id);
-        break;
     case "upload3":            $cust->upload3($id);
         break;
     case "upload_2":            $cust->display_upload2($id);
